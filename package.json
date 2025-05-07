@@ -1,5 +1,5 @@
 {
-  "name": "storybook-addon-kit",
+  "name": "@tchwrks/storybook-addon-text-search",
   "version": "0.0.0",
   "description": "everything you need to build a Storybook addon",
   "keywords": [
@@ -46,7 +46,12 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "@storybook/icons": "^1.2.10"
+    "@storybook/icons": "^1.2.10",
+    "flexsearch": "^0.8.160",
+    "remark-mdx": "^3.1.0",
+    "remark-parse": "^11.0.0",
+    "ts-morph": "^25.0.1",
+    "unified": "^11.0.5"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "0.0.0-pr-26654-sha-49d01553",
@@ -103,5 +108,6 @@
       "supported-frameworks"
     ],
     "icon": "https://user-images.githubusercontent.com/321738/63501763-88dbf600-c4cc-11e9-96cd-94adadc2fd72.png"
-  }
+  },
+  "packageManager": "yarn@4.9.1+sha256.6ffc213b3ce0af5c92507977d9537ea3cc085caa52d1c3f08e94d613407fed19"
 }
