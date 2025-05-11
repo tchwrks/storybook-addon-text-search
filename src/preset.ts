@@ -8,8 +8,8 @@ import config from "../textsearch.config";
 
 const buildIndexOnStartup = async () => {
   console.log("Build index on startup called!")
-  const data = await buildTextIndex(config);
-  console.log("✅ Index built with", data.docs.length, "docs");
+  const { index, docs } = await buildTextIndex(config);
+  console.log("✅ Index built with", docs.length, "docs");
 }
 
 export const viteFinal = async (config: any) => {

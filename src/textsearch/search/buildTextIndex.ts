@@ -12,7 +12,6 @@ export interface SearchDoc {
 
 export async function buildTextIndex(config: ExtractionConfig) {
     const docs = await generateDocs(config.inputPaths);
-
     const index = new Index({ tokenize: 'forward', preset: 'match' });
 
     for (const doc of docs) {
@@ -20,10 +19,10 @@ export async function buildTextIndex(config: ExtractionConfig) {
     }
 
     if (config.outputJson) {
-        await fs.writeFile(
-            path.resolve('.textsearch-debug.json'),
-            JSON.stringify(docs, null, 2)
-        );
+        const outputDir = path.resolve(process.cwd(), 'text-search-artifacts');
+        const outputFile = path.join(outputDir, 'text-search-debug.json');
+        await fs.mkdir(outputDir, { recursive: true });
+        await fs.writeFile(outputFile, JSON.stringify(docs, null, 2));
     }
 
     return { docs, index };

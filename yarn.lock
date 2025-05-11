@@ -2832,6 +2832,45 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tchwrks/storybook-addon-text-search@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@tchwrks/storybook-addon-text-search@workspace:."
+  dependencies:
+    "@storybook/addon-essentials": "npm:0.0.0-pr-26654-sha-49d01553"
+    "@storybook/addon-interactions": "npm:0.0.0-pr-26654-sha-49d01553"
+    "@storybook/addon-links": "npm:0.0.0-pr-26654-sha-49d01553"
+    "@storybook/blocks": "npm:0.0.0-pr-26654-sha-49d01553"
+    "@storybook/icons": "npm:^1.2.10"
+    "@storybook/react": "npm:0.0.0-pr-26654-sha-49d01553"
+    "@storybook/react-vite": "npm:0.0.0-pr-26654-sha-49d01553"
+    "@storybook/test": "npm:0.0.0-pr-26654-sha-49d01553"
+    "@types/node": "npm:^18.15.0"
+    "@types/react": "npm:^18.2.65"
+    "@types/react-dom": "npm:^18.2.21"
+    "@vitejs/plugin-react": "npm:^4.2.1"
+    auto: "npm:^11.1.1"
+    boxen: "npm:^7.1.1"
+    dedent: "npm:^1.5.1"
+    flexsearch: "npm:^0.8.160"
+    npm-run-all2: "npm:^6.2.3"
+    prettier: "npm:^3.3.3"
+    prompts: "npm:^2.4.2"
+    react: "npm:^18.2.0"
+    react-dom: "npm:^18.2.0"
+    remark-mdx: "npm:^3.1.0"
+    remark-parse: "npm:^11.0.0"
+    storybook: "npm:0.0.0-pr-26654-sha-49d01553"
+    ts-morph: "npm:^25.0.1"
+    tsup: "npm:^8.2.4"
+    typescript: "npm:^5.5.4"
+    unified: "npm:^11.0.5"
+    vite: "npm:^5.3.5"
+    zx: "npm:^7.2.3"
+  peerDependencies:
+    storybook: ^8.3.0 || 0.0.0-pr-26654-sha-49d01553
+  languageName: unknown
+  linkType: soft
+
 "@testing-library/dom@npm:10.1.0":
   version: 10.1.0
   resolution: "@testing-library/dom@npm:10.1.0"
@@ -9030,45 +9069,6 @@ __metadata:
   checksum: 10c0/34378b207a1620a24804ce8b5d230fea0c279f00b18a7209646d5d47e419d1cc23e7cbf33a25a1e51ac38973dc2ac2e1e9c647a8e481ef365f77668d72becfd0
   languageName: node
   linkType: hard
-
-"storybook-addon-kit@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "storybook-addon-kit@workspace:."
-  dependencies:
-    "@storybook/addon-essentials": "npm:0.0.0-pr-26654-sha-49d01553"
-    "@storybook/addon-interactions": "npm:0.0.0-pr-26654-sha-49d01553"
-    "@storybook/addon-links": "npm:0.0.0-pr-26654-sha-49d01553"
-    "@storybook/blocks": "npm:0.0.0-pr-26654-sha-49d01553"
-    "@storybook/icons": "npm:^1.2.10"
-    "@storybook/react": "npm:0.0.0-pr-26654-sha-49d01553"
-    "@storybook/react-vite": "npm:0.0.0-pr-26654-sha-49d01553"
-    "@storybook/test": "npm:0.0.0-pr-26654-sha-49d01553"
-    "@types/node": "npm:^18.15.0"
-    "@types/react": "npm:^18.2.65"
-    "@types/react-dom": "npm:^18.2.21"
-    "@vitejs/plugin-react": "npm:^4.2.1"
-    auto: "npm:^11.1.1"
-    boxen: "npm:^7.1.1"
-    dedent: "npm:^1.5.1"
-    flexsearch: "npm:^0.8.160"
-    npm-run-all2: "npm:^6.2.3"
-    prettier: "npm:^3.3.3"
-    prompts: "npm:^2.4.2"
-    react: "npm:^18.2.0"
-    react-dom: "npm:^18.2.0"
-    remark-mdx: "npm:^3.1.0"
-    remark-parse: "npm:^11.0.0"
-    storybook: "npm:0.0.0-pr-26654-sha-49d01553"
-    ts-morph: "npm:^25.0.1"
-    tsup: "npm:^8.2.4"
-    typescript: "npm:^5.5.4"
-    unified: "npm:^11.0.5"
-    vite: "npm:^5.3.5"
-    zx: "npm:^7.2.3"
-  peerDependencies:
-    storybook: ^8.3.0 || 0.0.0-pr-26654-sha-49d01553
-  languageName: unknown
-  linkType: soft
 
 "storybook@npm:0.0.0-pr-26654-sha-49d01553":
   version: 0.0.0-pr-26654-sha-49d01553
