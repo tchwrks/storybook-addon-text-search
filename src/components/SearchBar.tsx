@@ -1,21 +1,65 @@
 import React, { useEffect, useRef, useState } from "react";
 import { SearchDoc } from "src/textsearch/search/buildTextIndex";
+import { Document } from "flexsearch";
 
 export const SearchBar = () => {
     const [docs, setDocs] = useState<SearchDoc[]>([]);
+    const [index, setIndex] = useState<Document | null>(null);
+    const [results, setResults] = useState<SearchDoc[]>([]);
     const [overlayOpen, setOverlayOpen] = useState(false);
     const [overlayQuery, setOverlayQuery] = useState("");
     const modalInputRef = useRef<HTMLInputElement>(null);
 
-    // Load index once
+    // ✅ Load both docs and FlexSearch index
     useEffect(() => {
-        fetch("text-search-debug.json")
-            .then((res) => res.json())
-            .then(setDocs)
-            .catch((err) => console.error("❌ Failed to fetch index:", err));
+        const load = async () => {
+            const [docsRes, indexRes] = await Promise.all([
+                fetch("text-search-docs.json").then(r => r.json()),
+                fetch("text-search-index.json").then(r => r.json()).then(data => data as Record<string, string>),
+            ]);
+
+            setDocs(docsRes);
+
+            const restored = new Document({
+                document: {
+                    id: 'id',
+                    index: ['title', 'content'],
+                    store: ['id', 'title', 'content', 'snippet', 'sourcePath', 'type']
+                }
+            });
+
+            for (const [key, data] of Object.entries(indexRes)) {
+                restored.import(key, data);
+            }
+            console.log("restored", restored);
+            setIndex(restored);
+        };
+
+        load().catch(err => console.error("❌ Failed to load search index:", err));
     }, []);
 
-    // Keyboard shortcut
+    // 🔍 Run actual FlexSearch on input change
+    useEffect(() => {
+        if (!index || overlayQuery.length <= 1) {
+            console.warn("No index or query length <= 1");
+            setResults([]);
+            return;
+        }
+
+        const res = index.search(overlayQuery, { enrich: true }) as any;
+        const unique = new Map<string, SearchDoc>();
+
+        for (const fieldResult of res) {
+            for (const entry of fieldResult.result) {
+                if (entry?.doc?.id) {
+                    unique.set(entry.doc.id, entry.doc as SearchDoc);
+                }
+            }
+        }
+        setResults([...unique.values()]);
+    }, [overlayQuery, index]);
+
+    // 🎹 Hotkey listener
     useEffect(() => {
         const isMac = navigator.userAgent.includes("Mac");
         const handler = (e: KeyboardEvent) => {
@@ -34,12 +78,17 @@ export const SearchBar = () => {
         return () => window.removeEventListener("keydown", handler);
     }, []);
 
-    const results =
-        overlayQuery.length > 1
-            ? docs.filter((doc) =>
-                doc.content.toLowerCase().includes(overlayQuery.toLowerCase())
-            )
-            : [];
+    // 🧭 Handle future navigation
+    const handleClick = (doc: SearchDoc) => {
+        if (doc.metaTitle) {
+            const formatted = doc.metaTitle.toLowerCase().replace(/^\//, '').replace(/[\/\s_]+/g, '-');
+            window.location.href = `/?path=/docs/${formatted}`;
+        } else if (doc.storyId) {
+            window.location.href = `/?path=/docs/${doc.storyId}`;
+        } else {
+            console.warn("No story ID found for doc", doc);
+        }
+    };
 
     return (
         <>
@@ -134,9 +183,10 @@ export const SearchBar = () => {
                                             borderBottom: "1px solid #eee",
                                             cursor: "pointer",
                                         }}
+                                        onClick={() => handleClick(doc)}
                                     >
                                         <strong style={{ fontSize: 14 }}>
-                                            {doc.id}
+                                            {doc.metaTitle ?? doc.title}
                                         </strong>
                                         <br />
                                         <span
