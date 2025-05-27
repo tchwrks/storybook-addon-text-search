@@ -1,3 +1,16 @@
+// TODO: - Trap focus in the modal
+// TODO: - Support fuzzy search / not requiring full word match
+// TODO: - Keyboard nav through results with hints at bottom or top of modal
+// TODO: - Hint for escape to close at bottom or top of modal
+// TODO: - Click outside modal to close
+// TODO: - Results / snippet highlighting (highlighting on results page?)
+// TODO: - Debounce input
+// TODO: - Add error notice at top of modal if index fails to load
+// TODO: - Refine metaTitle slugification to align more with Storybook's pattern if possible
+// TODO: - Parse JSX
+// TODO: - Clean up component
+// TODO: - Re-index on Storybook HMR. See preset.ts (Shallow? Only re-index what changes. Hashing?)
+
 import React, { useEffect, useRef, useState } from "react";
 import { SearchDoc } from "src/textsearch/search/buildTextIndex";
 import { Document } from "flexsearch";
