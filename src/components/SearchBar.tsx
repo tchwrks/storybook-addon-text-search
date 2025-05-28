@@ -1,8 +1,4 @@
-// TODO: - Trap focus in the modal (w/o using external deps. Keeping bundle size down)
-// TODO: - Support fuzzy search / not requiring full word match
-// TODO: - Keyboard nav through results with hints at bottom or top of modal
-// TODO: - Hint for escape to close at bottom or top of modal
-// TODO: - Click outside modal to close
+// TODO: - Graceful overlay/modal open/close + hiding/showing of modal shortcuts (subtle fade in/out + translation?)
 // TODO: - Results / snippet highlighting (highlighting on results page?)
 // TODO: - Debounce input
 // TODO: - Add error notice at top of modal if index fails to load
@@ -15,12 +11,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { Document } from "flexsearch";
 import { FocusTrap } from "focus-trap-react";
 import { SearchDoc } from "src/textsearch/search/buildTextIndex";
+import { TechworksComboMark } from "src/components/TechworksComboMark";
 
 export const SearchBar = () => {
     const [index, setIndex] = useState<Document | null>(null);
     const [results, setResults] = useState<SearchDoc[]>([]);
-    const [overlayOpen, setOverlayOpen] = useState(false);
-    const [overlayQuery, setOverlayQuery] = useState("");
+    const [overlayOpen, setOverlayOpen] = useState<boolean>(false);
+    const [overlayQuery, setOverlayQuery] = useState<string>("");
+    const [selectedIndex, setSelectedIndex] = useState<number>(0);
     const modalInputRef = useRef<HTMLInputElement>(null);
 
     // ✅ Load both docs and FlexSearch index
@@ -34,6 +32,7 @@ export const SearchBar = () => {
 
 
             const restored = new Document({
+                tokenize: "forward",
                 document: {
                     id: 'id',
                     index: ['title', 'content'],
@@ -59,7 +58,7 @@ export const SearchBar = () => {
             return;
         }
 
-        const res = index.search(overlayQuery, { enrich: true }) as any;
+        const res = index.search(overlayQuery, { enrich: true, suggest: true, limit: 10 }) as any;
         const unique = new Map<string, SearchDoc>();
 
         for (const fieldResult of res) {
@@ -72,16 +71,23 @@ export const SearchBar = () => {
         setResults([...unique.values()]);
     }, [overlayQuery, index]);
 
+    // 🔄 Reset selected index when results change
+    useEffect(() => {
+        setSelectedIndex(0);
+    }, [results]);
+
     // 🎹 Hotkey listener
     useEffect(() => {
         const isMac = navigator.userAgent.includes("Mac");
         const handler = (e: KeyboardEvent) => {
             const cmdKey = isMac ? e.metaKey : e.ctrlKey;
+            // Hotkey to open modal
             if (cmdKey && e.shiftKey && e.key.toLowerCase() === "k") {
                 e.preventDefault();
                 setOverlayOpen(true);
                 setTimeout(() => modalInputRef.current?.focus(), 20);
             }
+            // Escape to close modal
             if (e.key === "Escape") {
                 setOverlayOpen(false);
                 setOverlayQuery("");
@@ -91,7 +97,34 @@ export const SearchBar = () => {
         return () => window.removeEventListener("keydown", handler);
     }, []);
 
-    // 🧭 Handle future navigation
+    // 🎯 Handle clicks outside the modal
+    const handleClickOutside = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setOverlayOpen(false);
+        setOverlayQuery("");
+    }
+
+    // 🎹 Modal input hotkey listener
+    const handleModalKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (overlayOpen && results.length > 0) {
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setSelectedIndex((prev) => Math.max(prev - 1, 0));
+            } else if (e.key === "Enter") {
+                e.preventDefault();
+                const doc = results[selectedIndex];
+                if (doc) handleClick(doc);
+            } else if (e.key === "Tab") {
+                e.preventDefault();
+                setSelectedIndex((prev) => (prev + 1) % results.length);
+            }
+        }
+    }
+
+    // 🧭 Handle navigation to the selected doc
     const handleClick = (doc: SearchDoc) => {
         if (doc.metaTitle) {
             const formatted = doc.metaTitle.toLowerCase().replace(/^\//, '').replace(/[\/\s_]+/g, '-');
@@ -108,7 +141,7 @@ export const SearchBar = () => {
             {/* Always-visible toolbar input (not functional) */}
             <div style={{ position: "relative", display: "inline-block" }}>
                 <input
-                    placeholder="Search"
+                    placeholder="Find text"
                     readOnly
                     onClick={() => setOverlayOpen(true)}
                     style={{
@@ -150,12 +183,14 @@ export const SearchBar = () => {
                             backdropFilter: "blur(8px)",
                             zIndex: 9999,
                             display: "flex",
-                            alignItems: "center",
+                            alignItems: "start",
                             justifyContent: "center",
                             padding: 24,
                         }}
+                        onClick={handleClickOutside}
                     >
                         <div
+                            onClick={e => e.stopPropagation()}
                             style={{
                                 background: "#fff",
                                 width: "100%",
@@ -165,20 +200,47 @@ export const SearchBar = () => {
                                 boxShadow: "0 12px 24px rgba(0,0,0,0.2)",
                             }}
                         >
-                            <input
-                                ref={modalInputRef}
-                                value={overlayQuery}
-                                onChange={(e) => setOverlayQuery(e.target.value)}
-                                placeholder="Search docs and components"
+                            <div
                                 style={{
                                     width: "100%",
-                                    padding: "12px 16px",
-                                    fontSize: 16,
-                                    borderRadius: 6,
-                                    border: "1px solid #ccc",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 16,
                                     marginBottom: 16,
+                                    paddingBottom: 16,
+                                    borderBottom: "1px solid #eee",
                                 }}
-                            />
+                            >
+                                <input
+                                    ref={modalInputRef}
+                                    value={overlayQuery}
+                                    onChange={(e) => setOverlayQuery(e.target.value)}
+                                    placeholder="Search docs and components"
+                                    style={{
+                                        width: "100%",
+                                        padding: "12px 16px",
+                                        fontSize: 16,
+                                        borderRadius: 6,
+                                        border: "1px solid #ccc",
+                                    }}
+                                    onKeyDown={handleModalKeyDown}
+                                />
+                                <div
+                                    style={{
+                                        fontSize: 12,
+                                        color: "#666",
+                                        display: "flex",
+                                        gap: 6
+                                    }}
+                                >
+                                    <span style={{ fontWeight: "bold" }}>Shortcuts:</span>
+                                    <span>ESC to close</span>
+                                    <span>|</span>
+                                    <span>↑↓ or Tab to navigate</span>
+                                    <span>|</span>
+                                    <span>↵ to open page</span>
+                                </div>
+                            </div>
                             {results.length > 0 ? (
                                 <ul
                                     style={{
@@ -187,36 +249,78 @@ export const SearchBar = () => {
                                         margin: 0,
                                         maxHeight: 300,
                                         overflowY: "auto",
+                                        overflowX: "hidden",
                                     }}
                                 >
                                     {results.map((doc, i) => (
                                         <li
-                                            tabIndex={0}
                                             key={i}
+                                            onClick={() => handleClick(doc)}
                                             style={{
-                                                padding: "12px 0",
+                                                borderRadius: 4,
+                                                padding: "12px 8px",
                                                 borderBottom: "1px solid #eee",
                                                 cursor: "pointer",
+                                                backgroundColor: i === selectedIndex ? "#f0f0f0" : "transparent",
                                             }}
-                                            onClick={() => handleClick(doc)}
                                         >
                                             <strong style={{ fontSize: 14 }}>
                                                 {doc.metaTitle ?? doc.title}
                                             </strong>
                                             <br />
                                             <span
-                                                style={{ fontSize: 13, color: "#666" }}
+                                                style={{
+                                                    fontSize: 13,
+                                                    color: "#666",
+                                                    display: "inline-block",
+                                                    maxWidth: "100%",
+                                                    whiteSpace: "nowrap",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                }}
                                             >
-                                                {doc.content.slice(0, 100)}...
+                                                {doc.snippet.slice(0, 100) || doc.content.slice(0, 100)}...
                                             </span>
                                         </li>
                                     ))}
                                 </ul>
                             ) : (
-                                <div style={{ fontSize: 14, color: "#888" }}>
+                                <div style={{ fontSize: 14, color: "#888", width: "100%", textAlign: "center" }}>
                                     No results found.
                                 </div>
                             )}
+                            {/* Enchufe y respectos */}
+                            <div
+                                style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    fontSize: 12,
+                                    color: "#888",
+                                    gap: 8,
+                                    marginTop: 16,
+                                }}
+                            >
+                                <a href="https://techworks.studio" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                                    <span
+                                        style={{
+                                            display: "flex",
+                                            color: "#888",
+                                            alignItems: "center",
+                                            gap: 4,
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        Brought to you by
+                                        <TechworksComboMark height={14} />
+                                    </span>
+                                </a>
+                                <span>|</span>
+                                <a href="https://github.com/nextapps-de/flexsearch" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                                    <span style={{ color: "#888" }}>Powered by flexsearch</span>
+                                </a>
+
+                            </div>
                         </div>
                     </div>
                 </FocusTrap>

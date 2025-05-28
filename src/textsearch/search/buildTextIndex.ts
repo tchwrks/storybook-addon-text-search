@@ -19,6 +19,7 @@ export async function buildTextIndex(config: ExtractionConfig) {
     const docs: SearchDoc[] = await generateDocs(config.inputPaths);
 
     const index = new Document({
+        tokenize: "forward",
         document: {
             id: 'id',
             index: ['title', 'content'],
