@@ -3028,6 +3028,7 @@ __metadata:
     dedent: "npm:^1.5.1"
     esbuild: "npm:0.25.5"
     flexsearch: "npm:^0.8.160"
+    focus-trap-react: "npm:^11.0.4"
     npm-run-all2: "npm:^6.2.3"
     prettier: "npm:^3.3.3"
     prompts: "npm:^2.4.2"
@@ -5681,6 +5682,30 @@ __metadata:
   version: 0.269.1
   resolution: "flow-parser@npm:0.269.1"
   checksum: 10c0/3be6c9208ce3f20a5d3ae2b4f8c8c0820b704c4410230c3f4c9b87065df3737fe0834a3f381abd52ef5396b9948b46eba65b790e8ad1cf25d0157d13e8745583
+  languageName: node
+  linkType: hard
+
+"focus-trap-react@npm:^11.0.4":
+  version: 11.0.4
+  resolution: "focus-trap-react@npm:11.0.4"
+  dependencies:
+    focus-trap: "npm:^7.6.5"
+    tabbable: "npm:^6.2.0"
+  peerDependencies:
+    "@types/react": ^18.0.0 || ^19.0.0
+    "@types/react-dom": ^18.0.0 || ^19.0.0
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  checksum: 10c0/c1b5bd29e8b226715e697202c540f28fa2cd47974b88d15b144e84422bcd199dab1bc461a491d7d36c97744d91087fc949984ddf71ddc867f4f971af0bf0aa30
+  languageName: node
+  linkType: hard
+
+"focus-trap@npm:^7.6.5":
+  version: 7.6.5
+  resolution: "focus-trap@npm:7.6.5"
+  dependencies:
+    tabbable: "npm:^6.2.0"
+  checksum: 10c0/36cac0d9b05fe5824733675bb49792842dae4704286ef7e17c736ee0c9c14701e874e6821449e78b70c17e42ba1b2c98ef10434bfe644b9d7654d8ef7f1c8faf
   languageName: node
   linkType: hard
 
@@ -9536,6 +9561,13 @@ __metadata:
   version: 1.0.0
   resolution: "supports-preserve-symlinks-flag@npm:1.0.0"
   checksum: 10c0/6c4032340701a9950865f7ae8ef38578d8d7053f5e10518076e6554a9381fa91bd9c6850193695c141f32b21f979c985db07265a758867bac95de05f7d8aeb39
+  languageName: node
+  linkType: hard
+
+"tabbable@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "tabbable@npm:6.2.0"
+  checksum: 10c0/ced8b38f05f2de62cd46836d77c2646c42b8c9713f5bd265daf0e78ff5ac73d3ba48a7ca45f348bafeef29b23da7187c72250742d37627883ef89cbd7fa76898
   languageName: node
   linkType: hard
 

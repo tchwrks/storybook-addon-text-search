@@ -1,4 +1,4 @@
-// TODO: - Trap focus in the modal
+// TODO: - Trap focus in the modal (w/o using external deps. Keeping bundle size down)
 // TODO: - Support fuzzy search / not requiring full word match
 // TODO: - Keyboard nav through results with hints at bottom or top of modal
 // TODO: - Hint for escape to close at bottom or top of modal
@@ -12,11 +12,11 @@
 // TODO: - Re-index on Storybook HMR. See preset.ts (Shallow? Only re-index what changes. Hashing?)
 
 import React, { useEffect, useRef, useState } from "react";
-import { SearchDoc } from "src/textsearch/search/buildTextIndex";
 import { Document } from "flexsearch";
+import { FocusTrap } from "focus-trap-react";
+import { SearchDoc } from "src/textsearch/search/buildTextIndex";
 
 export const SearchBar = () => {
-    const [docs, setDocs] = useState<SearchDoc[]>([]);
     const [index, setIndex] = useState<Document | null>(null);
     const [results, setResults] = useState<SearchDoc[]>([]);
     const [overlayOpen, setOverlayOpen] = useState(false);
@@ -26,18 +26,18 @@ export const SearchBar = () => {
     // ✅ Load both docs and FlexSearch index
     useEffect(() => {
         const load = async () => {
+            // ! Remove docsRes. Only using index/indexRes
             const [docsRes, indexRes] = await Promise.all([
                 fetch("text-search-docs.json").then(r => r.json()),
                 fetch("text-search-index.json").then(r => r.json()).then(data => data as Record<string, string>),
             ]);
 
-            setDocs(docsRes);
 
             const restored = new Document({
                 document: {
                     id: 'id',
                     index: ['title', 'content'],
-                    store: ['id', 'title', 'content', 'snippet', 'sourcePath', 'type']
+                    store: ['id', 'title', 'content', 'snippet', 'sourcePath', 'metaTitle', 'type']
                 }
             });
 
@@ -141,82 +141,85 @@ export const SearchBar = () => {
 
             {/* Overlay modal */}
             {overlayOpen && (
-                <div
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        background: "rgba(0,0,0,0.4)",
-                        backdropFilter: "blur(8px)",
-                        zIndex: 9999,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: 24,
-                    }}
-                >
+                <FocusTrap>
                     <div
                         style={{
-                            background: "#fff",
-                            width: "100%",
-                            maxWidth: 640,
-                            borderRadius: 8,
+                            position: "fixed",
+                            inset: 0,
+                            background: "rgba(0,0,0,0.4)",
+                            backdropFilter: "blur(8px)",
+                            zIndex: 9999,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                             padding: 24,
-                            boxShadow: "0 12px 24px rgba(0,0,0,0.2)",
                         }}
                     >
-                        <input
-                            ref={modalInputRef}
-                            value={overlayQuery}
-                            onChange={(e) => setOverlayQuery(e.target.value)}
-                            placeholder="Search docs and components"
+                        <div
                             style={{
+                                background: "#fff",
                                 width: "100%",
-                                padding: "12px 16px",
-                                fontSize: 16,
-                                borderRadius: 6,
-                                border: "1px solid #ccc",
-                                marginBottom: 16,
+                                maxWidth: 640,
+                                borderRadius: 8,
+                                padding: 24,
+                                boxShadow: "0 12px 24px rgba(0,0,0,0.2)",
                             }}
-                        />
-                        {results.length > 0 ? (
-                            <ul
+                        >
+                            <input
+                                ref={modalInputRef}
+                                value={overlayQuery}
+                                onChange={(e) => setOverlayQuery(e.target.value)}
+                                placeholder="Search docs and components"
                                 style={{
-                                    listStyle: "none",
-                                    padding: 0,
-                                    margin: 0,
-                                    maxHeight: 300,
-                                    overflowY: "auto",
+                                    width: "100%",
+                                    padding: "12px 16px",
+                                    fontSize: 16,
+                                    borderRadius: 6,
+                                    border: "1px solid #ccc",
+                                    marginBottom: 16,
                                 }}
-                            >
-                                {results.map((doc, i) => (
-                                    <li
-                                        key={i}
-                                        style={{
-                                            padding: "12px 0",
-                                            borderBottom: "1px solid #eee",
-                                            cursor: "pointer",
-                                        }}
-                                        onClick={() => handleClick(doc)}
-                                    >
-                                        <strong style={{ fontSize: 14 }}>
-                                            {doc.metaTitle ?? doc.title}
-                                        </strong>
-                                        <br />
-                                        <span
-                                            style={{ fontSize: 13, color: "#666" }}
+                            />
+                            {results.length > 0 ? (
+                                <ul
+                                    style={{
+                                        listStyle: "none",
+                                        padding: 0,
+                                        margin: 0,
+                                        maxHeight: 300,
+                                        overflowY: "auto",
+                                    }}
+                                >
+                                    {results.map((doc, i) => (
+                                        <li
+                                            tabIndex={0}
+                                            key={i}
+                                            style={{
+                                                padding: "12px 0",
+                                                borderBottom: "1px solid #eee",
+                                                cursor: "pointer",
+                                            }}
+                                            onClick={() => handleClick(doc)}
                                         >
-                                            {doc.content.slice(0, 100)}...
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <div style={{ fontSize: 14, color: "#888" }}>
-                                No results found.
-                            </div>
-                        )}
+                                            <strong style={{ fontSize: 14 }}>
+                                                {doc.metaTitle ?? doc.title}
+                                            </strong>
+                                            <br />
+                                            <span
+                                                style={{ fontSize: 13, color: "#666" }}
+                                            >
+                                                {doc.content.slice(0, 100)}...
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <div style={{ fontSize: 14, color: "#888" }}>
+                                    No results found.
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
+                </FocusTrap>
             )}
         </>
     );

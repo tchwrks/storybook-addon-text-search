@@ -31,7 +31,7 @@ export async function buildTextIndex(config: ExtractionConfig) {
     }
 
     if (config.outputJson) {
-        const outputDir = path.resolve(process.cwd(), 'text-search-artifacts');
+        const outputDir = path.resolve(process.cwd(), '.text-search-artifacts');
         await fs.mkdir(outputDir, { recursive: true });
 
         await fs.writeFile(

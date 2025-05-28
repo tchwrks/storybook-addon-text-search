@@ -49,6 +49,7 @@
     "@storybook/icons": "^1.2.10",
     "esbuild": "0.25.5",
     "flexsearch": "^0.8.160",
+    "focus-trap-react": "^11.0.4",
     "remark-mdx": "^3.1.0",
     "remark-parse": "^11.0.0",
     "ts-morph": "^25.0.1",

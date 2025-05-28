@@ -8,7 +8,7 @@ const config: StorybookConfig = {
     // "./local-preset.js",
     "@tchwrks/storybook-addon-text-search"
   ],
-  staticDirs: ["../text-search-artifacts"],
+  staticDirs: ["../.text-search-artifacts"],
   framework: {
     name: "@storybook/react-vite",
     options: {},
